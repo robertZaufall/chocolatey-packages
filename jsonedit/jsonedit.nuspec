@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>jsonedit</id>
+    <version>0.9.42.20240501</version>
+    <title>JSONedit</title>
+    <authors>Tomasz Ostrowski</authors>
+    <projectUrl>http://tomeko.net/software/JSONedit/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description># JSONedit
+JSONedit is a simple JSON editor with text, tree and list view.  
+Complete application (single executable file) weights about 2 MB (statically linked Lua and Scintilla included), does not require installation and does not depend on any non-standard dll.  
+Settings are stored in .ini file created in application directory, so you can call it portable.
+	</description>
+    <copyright>Tomasz Ostrowski</copyright>
+    <tags>JSON Editor TreeViewEditor</tags>
+  </metadata>
+</package>
