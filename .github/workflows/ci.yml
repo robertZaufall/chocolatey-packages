@@ -20,12 +20,9 @@ jobs:
 
       - name: init
         run: |
-          $context = $ENV:github_context | ConvertFrom-JSON
-
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git config --global user.name 'github-actions[bot]'
           git remote add origin_https https://${{ secrets.GIT_PAT }}@github.com/robertZaufall/chocolatey-packages.git
-
           git config --global core.safecrlf false
      
       - name: install
