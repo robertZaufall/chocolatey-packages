@@ -2,10 +2,10 @@ name: CI
 
 on:
   workflow_dispatch:
-  #push:
-  #  branches: [master]
-  #schedule:
-  #  - cron: "5 */8 * * *"
+  push:
+    branches: [master]
+  schedule:
+    - cron: "5 */8 * * *"
 
 jobs:
   ci:
