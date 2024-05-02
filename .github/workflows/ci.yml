@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  #push:
+  #  branches: [master]
+  #schedule:
+  #  - cron: "5 */8 * * *"
+
+jobs:
+  ci:
+    runs-on: windows-latest
+    outputs:
+      remote_ver: ${{ steps.compare.outputs.remote_ver }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GIT_PAT }}
+
+      - name: init
+        run: |
+          $context = $ENV:github_context | ConvertFrom-JSON
+
+          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config --global user.name 'github-actions[bot]'
+          git remote add origin_https https://${{ secrets.GIT_PAT }}@github.com/robertZaufall/chocolatey-packages.git
+
+          git config --global core.safecrlf false
+     
+      - name: install
+        run: |
+          choco install chocolatey-au
+      
+      - name: build_script
+        shell: powershell # Instead of pwsh because au fails on pwsh core.
+        env:
+          mail_user: ${{ secrets.MAIL_USER }}
+          mail_pass: ${{ secrets.MAIL_PASS }}
+          mail_server: "smtp.gmail.com"
+          mail_port: "587"
+          mail_enablessl: "true"
+
+          api_key: ${{ secrets.CHOCOLATEY_API_KEY }}
+
+          gist_id: "d96f64f3492e089ad97442a3a3116da6"
+          gist_id_test: "cea878428eff51cee425aeeb5ae45987"
+
+          github_user_repo: "robertZaufall/chocolatey-packages"
+          github_api_key: ${{ secrets.GIT_PAT }}
+
+          au_push: true
+        run: |
+          [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+          ./update_all.ps1 #-ForcedPackages $forced
