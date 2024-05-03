@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>wasmedge</id>
+    <version>0.13.5</version>
+    <title>WasmEdge</title>
+    <authors>WasmEdge</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/WasmEdge/WasmEdge/raw/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/WasmEdge/WasmEdge</projectUrl>
+    <description>WasmEdge  
+  	
+WasmEdge is a lightweight, high-performance, and extensible WebAssembly runtime for cloud native, edge, and decentralized applications. It powers serverless apps, embedded functions, microservices, smart contracts, and IoT devices.
+	</description>
+    <tags>webassembly wasm docker kubernetes cloud serverless container cncf rust-lang cloud-native ewasm edge-computing</tags>
+  </metadata>
+</package>
