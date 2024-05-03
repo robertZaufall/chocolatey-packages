@@ -51,7 +51,8 @@ jobs:
           [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
 
           if ( $ENV:GITHUB_EVENT_NAME -eq 'push' ) {
-              switch -regex ( (gc $ENV:GITHUB_EVENT_PATH | ConvertFrom-Json).commits.message )
+            Write-Host "Push event detected"
+            switch -regex ( (gc $ENV:GITHUB_EVENT_PATH | ConvertFrom-Json).commits.message )
               {
                   '\[AU (.+?)\]'   { 
                     $forced = $Matches[1] 
