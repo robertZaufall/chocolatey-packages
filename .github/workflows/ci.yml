@@ -46,7 +46,18 @@ jobs:
           github_user_repo: "robertZaufall/chocolatey-packages"
           github_api_key: ${{ secrets.GIT_PAT }}
 
-          au_push: true
+          au_push: "false"
         run: |
           [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
-          ./update_all.ps1 #-ForcedPackages $forced
+
+          if ( $ENV:GITHUB_EVENT_NAME -eq 'push' ) {
+              switch -regex ( (gc $ENV:GITHUB_EVENT_PATH | ConvertFrom-Json).commits.message )
+              {
+                  '\[AU (.+?)\]'   { 
+                    $forced = $Matches[1] 
+                    Write-Host "Forced: $forced"
+                  }
+              }
+          }
+
+          ./update_all.ps1 -ForcedPackages $forced
