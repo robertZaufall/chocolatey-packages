@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>xsemmel</id>
+    <version>2017.04.09</version>
+    <title>Xsemmel</title>
+    <authors>Frank Schnitzer</authors>
+    <projectUrl>https://github.com/fcarver/xsemmel</projectUrl>
+    <description># XML editor and viewer 
+  
+## Features
+
+* XML editing
+	* xsd-based code completion
+	* pretty printing
+* validate against XSD schema
+* xsd visualizer
+* grid view
+* generate sample XML based on XSD
+* tree view
+	* navigate with tree
+	* show only XML fragments
+	* generate XPath of selected node
+* XPath queries
+	* auto-detect namespace
+	* user-defined functions (C#)
+* generate complex XML files based on pattern language
+* generate XSD schema based on sample XML file
+* compare XML files
+* XSLT transformation
+* XQuery
+* bulk XSD validation of many XML files at once
+* bulk XPath processing of many files at once</description>
+    <licenseUrl>https://github.com/fcarver/xsemmel/blob/master/license.txt</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <tags>xml xsd xpath xslt xquery</tags>
+  </metadata>
+</package>
