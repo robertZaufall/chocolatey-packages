@@ -46,7 +46,7 @@ jobs:
           github_user_repo: "robertZaufall/chocolatey-packages"
           github_api_key: ${{ secrets.GIT_PAT }}
 
-          au_push: "false"
+          au_push: "true"
         run: |
           [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
 
