@@ -2,6 +2,7 @@ import-module chocolatey-au
 . $PSScriptRoot\..\_scripts\all.ps1
 
 $repo        = 'microsoft/Analysis-Services'
+$binaryRexp  = ".*\.msi"
 
 $domain      = 'https://github.com'
 $releases    = $domain + '/' + $repo + '/releases'
@@ -19,19 +20,19 @@ function global:au_SearchReplace {
 
 function global:au_GetLatest {
     $download_page = Invoke-WebRequest -Uri $releases
-    $re_tag = "/tree/([0-9]+\.[0-9]+\.[0-9]+)$"
+    $re_tag = "/tree/([vV])?([0-9]+\.[0-9]+\.[0-9]+)$"
     $tag_link = $download_page.links | ? href -match $re_tag | select -First 1 -expand href
     $version = Split-Path $tag_link -Leaf
 
     $assets_page = Invoke-WebRequest -Uri ($assets + '/' + $version)
 
-    $re  = ".*\.msi"
+    $re  = $binaryRexp
     $url = $assets_page.links | ? href -match $re | select -First 1 -expand href
     $url = $domain + $url
 
     return @{
         URL32        = $url
-        Version      = $version
+        Version      = $version.Replace('v', '')
     }
 }
 
