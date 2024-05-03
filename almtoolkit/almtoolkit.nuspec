@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>almtoolkit</id>
+    <version>5.0.44</version>
+    <title>ALM Toolkit for PowerBI</title>
+    <authors>Microsoft, Christian Wade</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/microsoft/Analysis-Services/raw/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/microsoft/Analysis-Services</projectUrl>
+    <description>ALM Toolkit is a free and open-source tool to manage Microsoft Power BI datasets
+
+- Database compare  
+What is the Power BI datasets equivalent to relational database compare? There is none. Correction: there is now! ALM Toolit.  
+
+- Code merging  
+Merge branched models. Manage production branches for bug fixes. Allow multiple developers to work on the same project (there is one .BIM file).  
+
+- Easy deployment  
+Deploy bug fixes and partial releases. Other deployment methods are “all-or-nothing”, which are less flexible. Retain partitions to avoid reprocessing partitioned tables.  
+
+- Source-control integration  
+Store dataset metadata in a file and actually check it into source control!  
+
+- Reuse definitions  
+Reuse definitions between tabular models for alignment with common business definitions in an enterprise organization.  
+
+- Self-service to corporate BI
+Bridge the gap between self-service and corporate BI. Reuse definitions from self-service models to IT-owned semantic models.
+    </description>
+    <tags>almtoolkit analysisservices ssas powerbi pbid tabular dwh</tags>
+  </metadata>
+</package>
