@@ -2,10 +2,10 @@
 
 $packageArgs = @{
 	packageName    = 'wasmedge'
-	url            = 'https://github.com/WasmEdge/WasmEdge/releases/download/0.13.5/WasmEdge-0.13.5-windows.msi'
+	url            = 'https://github.com/WasmEdge/WasmEdge/releases/download/0.14.0/WasmEdge-0.14.0-windows.msi'
 	fileType       = 'msi'
 	silentArgs     = '/quiet /norestart'
-    checksum       = 'daed0b36666dc046d232b54bb8ed928b6c965063ca5f2a34f59b36d79b66fda7'
+    checksum       = '9f8805330e62ba2757aa147ba890d1e5f13a584324abb80c48099802df7aed06'
     checksumType   = 'sha256'
 	validExitCodes = @(0, 3010, 1641)
 }
