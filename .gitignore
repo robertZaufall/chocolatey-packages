@@ -6,3 +6,11 @@ Update-History.md
 Update-Force-Test*
 update_info.xml
 api_key
+_test/_TODO.txt
+_test/ReadMe.md
+_test/test.nuspec
+_test/tools/chocolateybeforemodify.ps1
+_test/tools/chocolateyinstall.ps1
+_test/tools/chocolateyuninstall.ps1
+_test/tools/LICENSE.txt
+_test/tools/VERIFICATION.txt
