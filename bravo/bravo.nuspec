@@ -1,8 +1,8 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>bravo</id>
-    <version>1.0.8</version>
+    <version>1.0.9</version>
     <title>Bravo for PowerBI</title>
     <authors>SQL-BI</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
