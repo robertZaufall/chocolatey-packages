@@ -2,10 +2,10 @@
 
 $packageArgs = @{
 	packageName    = 'almtoolkit'
-	url            = 'https://github.com/microsoft/Analysis-Services/releases/download/5.0.44/AlmToolkitSetup.msi'
+	url            = 'https://github.com/microsoft/Analysis-Services/releases/download/5.1.3/AlmToolkitSetup.msi'
 	fileType       = 'msi'
 	silentArgs     = '/quiet /norestart'
-    checksum       = 'd88d3fc68d10bca4bd005bed21e0006b95e5d23d5a394413b6d3618e65f92307'
+    checksum       = 'e3ce8caea3ff1288d8aa5d8f73108464a4891c9d2ade539a56b53c8dfe7df95d'
     checksumType   = 'sha256'
 	validExitCodes = @(0, 3010, 1641)
 }
