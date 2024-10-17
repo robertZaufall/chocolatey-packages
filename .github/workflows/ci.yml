@@ -34,7 +34,7 @@ jobs:
         env:
           mail_user: ${{ secrets.MAIL_USER }}
           mail_pass: ${{ secrets.MAIL_PASS }}
-          mail_server: "smtp.strato.de"
+          mail_server: ${{ secrets.MAIL_SERVER }}
           mail_port: "587"
           mail_enablessl: "true"
 
