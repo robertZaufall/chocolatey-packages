@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>almtoolkit</id>
-    <version>5.1.7</version>
+    <version>5.1.11</version>
     <title>ALM Toolkit for PowerBI</title>
     <authors>Microsoft, Christian Wade</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
