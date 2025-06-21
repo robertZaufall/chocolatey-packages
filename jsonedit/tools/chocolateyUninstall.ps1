@@ -2,6 +2,6 @@
 $exeName     = "jsonedit.exe"
 $AppPathKey  = "Registry::HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\$exeName"
 
-Uninstall-ChocolateyZipPackage jsonedit JSONedit_0_9_42.zip
+Uninstall-ChocolateyZipPackage jsonedit JSONedit_0_9_43.zip
 
 If (Test-Path $AppPathKey) {Remove-Item "$AppPathKey" -Force -Recurse -EA SilentlyContinue | Out-Null}
