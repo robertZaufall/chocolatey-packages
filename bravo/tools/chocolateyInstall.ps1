@@ -2,10 +2,10 @@
 
 $packageArgs = @{
 	packageName    = 'bravo'
-	url            = 'https://github.com/sql-bi/Bravo/releases/download/v1.0.11/Bravo.1.0.11.x64.msi'
+	url            = 'https://github.com/sql-bi/Bravo/releases/download/v1.0.12/Bravo.1.0.12.x64.msi'
 	fileType       = 'msi'
 	silentArgs     = '/quiet /norestart'
-    checksum       = '5278fdba08d8ebe48b5914ed7f377a4be8567152b002ee2a624a682bfb33ad5f'
+    checksum       = 'f65f82265c132e52ab99e954a7d9566e9fe6a6fdfb8b3e16d44d55de5e2787aa'
     checksumType   = 'sha256'
 	validExitCodes = @(0, 3010, 1641)
 }
