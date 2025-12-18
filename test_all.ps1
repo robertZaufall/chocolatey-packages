@@ -2,6 +2,10 @@
 
 param( [string[]] $Name, [string] $Root = "$PSScriptRoot" )
 
+Import-Module chocolatey-au
+. $PSScriptRoot\_scripts\Enable-AUHotfixBlockedJob.ps1
+Enable-AUHotfixBlockedJob
+
 if (Test-Path $PSScriptRoot/update_vars.ps1) { . $PSScriptRoot/update_vars.ps1 }
 $global:au_root = Resolve-Path $Root
 
