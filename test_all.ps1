@@ -29,6 +29,7 @@ $options = [ordered]@{
     Push    = $false
     # Keep CI stable: avoid threaded runner getting stuck with jobs in state "Blocked".
     Threads = if ($Env:GITHUB_ACTIONS -eq 'true') { 1 } else { 10 }
+    PluginPath = "$PSScriptRoot\\_scripts"
 
     IgnoreOn = @(                                      #Error message parts to set the package ignore status
         'Invalid job state'                             #Treat blocked/invalid background jobs as ignored packages
@@ -63,6 +64,10 @@ $options = [ordered]@{
             Title       = "Update Force Test - Group ${n}"
             UserMessage = "[Ignored](#ignored) | [Update report](https://gist.github.com/$Env:gist_id)"       #  Markdown, Text: Custom user message to show
         }
+    }
+
+    SanitizeReport = @{
+        Path = "$PSScriptRoot\Update-Force-Test-${n}.md"
     }
 
     Gist = @{

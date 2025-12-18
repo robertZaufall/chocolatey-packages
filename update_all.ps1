@@ -19,7 +19,7 @@ $Options = [ordered]@{
     Threads       = if ($Env:GITHUB_ACTIONS -eq 'true') { 1 } else { 10 }  #Number of background jobs to use
     Push          = $Env:au_Push -eq 'true'                 #Push to chocolatey
     PushAll       = $true                                   #Allow to push multiple packages at once
-    PluginPath    = ''                                      #Path to user plugins
+    PluginPath    = "$PSScriptRoot\\_scripts"               #Path to user plugins
     IgnoreOn      = @(                                      #Error message parts to set the package ignore status
       'Invalid job state'                                   #Treat blocked/invalid background jobs as ignored packages
       'Could not create SSL/TLS secure channel'
@@ -55,6 +55,10 @@ $Options = [ordered]@{
             IconSize    = 32                                #  Markdown: icon size
             Title       = ''                                #  Markdown, Text: TItle of the report, by default 'Update-AUPackages'
         }
+    }
+
+    SanitizeReport = @{
+        Path = "$PSScriptRoot\Update-AUPackages.md"
     }
 
     History = @{
