@@ -3,6 +3,7 @@ function Enable-AUHotfixBlockedJob {
     param()
 
     $cmd = Get-Command Update-AUPackages -ErrorAction Stop
+    $module = $cmd.Module
 
     # Already patched (idempotent).
     if ($cmd.ScriptBlock.ToString() -match 'AU_HOTFIX_BLOCKED_JOB') { return }
@@ -38,5 +39,15 @@ function Enable-AUHotfixBlockedJob {
         return
     }
 
-    Set-Item -Path Function:\Update-AUPackages -Value ([ScriptBlock]::Create($patched))
+    if (-not $module) {
+        Write-Warning "Enable-AUHotfixBlockedJob: Update-AUPackages isn't associated with a module; skipping hotfix to avoid breaking module-scoped types."
+        return
+    }
+
+    # IMPORTANT: Define the patched function *inside the chocolatey-au module scope*.
+    # If we redefine it in global scope, module-defined classes (e.g. [AUPackage]) may not resolve at runtime.
+    & $module {
+        param($newBody)
+        Set-Item -Path Function:\Update-AUPackages -Value ([ScriptBlock]::Create($newBody))
+    } $patched
 }
