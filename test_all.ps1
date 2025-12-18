@@ -22,9 +22,11 @@ if (($Name.Length -gt 0) -and ($Name[0] -match '^random (.+)')) {
 $options = [ordered]@{
     Force   = $true
     Push    = $false
-    Threads = 10 
+    # Keep CI stable: avoid threaded runner getting stuck with jobs in state "Blocked".
+    Threads = if ($Env:GITHUB_ACTIONS -eq 'true') { 1 } else { 10 }
 
     IgnoreOn = @(                                      #Error message parts to set the package ignore status
+        'Invalid job state'                             #Treat blocked/invalid background jobs as ignored packages
         'Could not create SSL/TLS secure channel'
         'Could not establish trust relationship'
         'The operation has timed out'
@@ -63,6 +65,14 @@ $options = [ordered]@{
         ApiKey = $Env:github_api_key                        #Your github api key - if empty anoymous gist is created
         Path   = "$PSScriptRoot\Update-Force-Test-${n}.md"  #List of files to add to the gist
         Description = "Update Force Test Report #powershell #chocolatey"
+    }
+}
+
+if ($Env:au_threads) {
+    $threads = 0
+    if ([int]::TryParse($Env:au_threads, [ref]$threads) -and $threads -gt 0) {
+        $Options.Threads = $threads
+        Write-Host "AU Threads overridden via au_threads=$threads"
     }
 }
 

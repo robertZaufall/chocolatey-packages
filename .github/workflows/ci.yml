@@ -47,6 +47,8 @@ jobs:
           github_api_key: ${{ secrets.GIT_PAT }}
 
           au_push: "true"
+          # Prevent chocolatey-au threaded runner from getting stuck with job state "Blocked" in CI.
+          au_threads: "1"
         run: |
           [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
 

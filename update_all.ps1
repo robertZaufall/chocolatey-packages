@@ -9,11 +9,14 @@ $Options = [ordered]@{
     Force         = $false                                  #Force all packages
     Timeout       = 100                                     #Connection timeout in seconds
     UpdateTimeout = 1200                                    #Update timeout in seconds
-    Threads       = 10                                      #Number of background jobs to use
+    # NOTE: In CI, chocolatey-au's threaded runner can end up with package jobs in state "Blocked",
+    # which may cause the run to loop until the GitHub Actions 6h timeout. Default to single-thread in CI.
+    Threads       = if ($Env:GITHUB_ACTIONS -eq 'true') { 1 } else { 10 }  #Number of background jobs to use
     Push          = $Env:au_Push -eq 'true'                 #Push to chocolatey
     PushAll       = $true                                   #Allow to push multiple packages at once
     PluginPath    = ''                                      #Path to user plugins
     IgnoreOn      = @(                                      #Error message parts to set the package ignore status
+      'Invalid job state'                                   #Treat blocked/invalid background jobs as ignored packages
       'Could not create SSL/TLS secure channel'
       'Could not establish trust relationship'
       'The operation has timed out'
@@ -30,7 +33,6 @@ $Options = [ordered]@{
       'Internal Server Error'
       'An exception occurred during a WebClient request'
       'remote session failed with an unexpected state'
-      'Blocked'
     )
     RepeatSleep   = 30                                      #How much to sleep between repeats in seconds, by default 0
     RepeatCount   = 1                                       #How many times to repeat on errors, by default 1
@@ -103,6 +105,14 @@ $Options = [ordered]@{
         $global:au_Force         = $true
         $global:au_IncludeStream = $Matches['stream']
         $global:au_Version       = $Matches['version']
+    }
+}
+
+if ($Env:au_threads) {
+    $threads = 0
+    if ([int]::TryParse($Env:au_threads, [ref]$threads) -and $threads -gt 0) {
+        $Options.Threads = $threads
+        Write-Host "AU Threads overridden via au_threads=$threads"
     }
 }
 
