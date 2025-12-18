@@ -9,43 +9,34 @@ function Enable-AUHotfixBlockedJob {
 
     $def = $cmd.ScriptBlock.ToString()
 
-    $pattern = @'
-(?s)
-if\s*\(\s*'Stopped'\s*,\s*'Failed'\s*,\s*'Completed'\s*-notcontains\s*\$job\.State\s*\)\s*\{\s*
-Write-Host\s+"Invalid job state for\s+\$\(\$job\.Name\):\s*"\s+\$job\.State\s*
-\}\s*
-else\s*\{
-'@
+    # Patch strategy:
+    # - Find the log line that prints "Invalid job state for ..."
+    # - Immediately stop+remove that job and `continue` the foreach loop
+    # This avoids the "Blocked" job being observed repeatedly and lets updateall proceed.
+    $pattern = '(?m)^(\s*)(Write-(?:Host|Warning)\s+.*Invalid job state for.*)$'
 
-    $replacement = @'
-if ( 'Stopped', 'Failed', 'Completed' -notcontains $job.State) {
-    # AU_HOTFIX_BLOCKED_JOB: treat invalid job states (e.g. Blocked) as "ignored" and remove the job
-    # so the update run can continue with the next package.
-    Write-Host "Invalid job state for $($job.Name): " $job.State
+    $patched = [regex]::Replace(
+        $def,
+        $pattern,
+        {
+            param($m)
+            $indent = $m.Groups[1].Value
+            $line = $m.Groups[2].Value
+            @(
+                $line
+                "${indent}# AU_HOTFIX_BLOCKED_JOB: remove invalid-state jobs (e.g. Blocked) so updateall can continue"
+                "${indent}try { Stop-Job `$job -Force -ErrorAction SilentlyContinue } catch {}"
+                "${indent}try { Remove-Job `$job -Force -ErrorAction SilentlyContinue } catch {}"
+                "${indent}continue"
+            ) -join "`n"
+        },
+        [System.Text.RegularExpressions.RegexOptions]::None
+    )
 
-    try { Stop-Job $job -Force -ErrorAction SilentlyContinue } catch {}
-    try { Remove-Job $job -Force -ErrorAction SilentlyContinue } catch {}
-
-    try {
-        $pkg = [AUPackage]::new((Get-AUPackages $job.Name))
-        $pkg.Ignored = $true
-        $pkg.IgnoreMessage = "Invalid job state: $($job.State)"
-        $pkg.Result = @('ignored', '', $pkg.IgnoreMessage)
-        $result += $pkg
-    } catch {
-        # If we can't construct a package result, just continue; the important part is to unblock the queue.
-    }
-
-    continue
-}
-else {
-'@
-
-    $patched = [regex]::Replace($def, $pattern, $replacement, 'IgnoreCase')
     if ($patched -eq $def) {
-        throw "Enable-AUHotfixBlockedJob: Patch pattern not found in Update-AUPackages (module version changed?)"
+        Write-Warning "Enable-AUHotfixBlockedJob: Could not locate \"Invalid job state\" handler in Update-AUPackages; skipping hotfix."
+        return
     }
 
     Set-Item -Path Function:\Update-AUPackages -Value ([ScriptBlock]::Create($patched))
 }
-
