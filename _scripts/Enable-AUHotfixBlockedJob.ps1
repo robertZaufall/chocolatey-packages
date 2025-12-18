@@ -6,7 +6,8 @@ function Enable-AUHotfixBlockedJob {
     $module = $cmd.Module
 
     # Already patched (idempotent).
-    if ($cmd.ScriptBlock.ToString() -match 'AU_HOTFIX_BLOCKED_JOB') { return $true }
+    $sbText = $cmd.ScriptBlock.ToString()
+    if (($sbText -match 'AU_HOTFIX_BLOCKED_JOB') -and ($sbText -match 'Stop-Job\\s+\\$job')) { return $true }
 
     $def = $cmd.ScriptBlock.ToString()
 
@@ -16,32 +17,32 @@ function Enable-AUHotfixBlockedJob {
     # This avoids the "Blocked" job being observed repeatedly and lets updateall proceed.
     $pattern = '(?m)^(\s*)(Write-(?:Host|Warning)\s+.*Invalid job state for.*)$'
 
-    $patched = [regex]::Replace(
-        $def,
-        $pattern,
-        {
-            param($m)
-            $indent = $m.Groups[1].Value
-            $line = $m.Groups[2].Value
+	    $patched = [regex]::Replace(
+	        $def,
+	        $pattern,
+	        {
+	            param($m)
+	            $indent = $m.Groups[1].Value
+	            $line = $m.Groups[2].Value
 	            @(
 	                $line
-	                "${indent}# AU_HOTFIX_BLOCKED_JOB: remove invalid-state jobs (e.g. Blocked) so updateall can continue"
-	                "${indent}try { Stop-Job `$job -Force -ErrorAction SilentlyContinue } catch {}"
-	                "${indent}try { Wait-Job `$job -Timeout 5 -ErrorAction SilentlyContinue | Out-Null } catch {}"
-	                "${indent}if ( 'Stopped', 'Failed', 'Completed' -contains `$job.State ) {"
-	                "${indent}  # Don't count this iteration; let the normal handler process+Remove-Job the now-stopped job."
-	                "${indent}  `$p -= 1"
-	                "${indent}  continue"
-	                "${indent}}"
-	                "${indent}try { Remove-Job -Id `$job.Id -Force -ErrorAction SilentlyContinue } catch {}"
-	                "${indent}if (Get-Job -Id `$job.Id -ErrorAction SilentlyContinue) {"
-	                "${indent}  try { Remove-Job -Name `$job.Name -Force -ErrorAction SilentlyContinue } catch {}"
-	                "${indent}}"
-	                "${indent}if (Get-Job -Id `$job.Id -ErrorAction SilentlyContinue) {"
-	                "${indent}  # Last resort: clear all jobs so the queue can move on."
-	                "${indent}  try { Remove-Job * -Force -ErrorAction SilentlyContinue } catch {}"
-	                "${indent}}"
-	                "${indent}continue"
+	                ($indent + '# AU_HOTFIX_BLOCKED_JOB: remove invalid-state jobs (e.g. Blocked) so updateall can continue')
+	                ($indent + 'try { Stop-Job $job -Force -ErrorAction SilentlyContinue } catch {}')
+	                ($indent + 'try { Wait-Job $job -Timeout 5 -ErrorAction SilentlyContinue | Out-Null } catch {}')
+	                ($indent + 'if ( ''Stopped'', ''Failed'', ''Completed'' -contains $job.State ) {')
+	                ($indent + '  # Don''t count this iteration; let the normal handler process+Remove-Job the now-stopped job.')
+	                ($indent + '  $p -= 1')
+	                ($indent + '  continue')
+	                ($indent + '}')
+	                ($indent + 'try { Remove-Job -Id $job.Id -Force -ErrorAction SilentlyContinue } catch {}')
+	                ($indent + 'if (Get-Job -Id $job.Id -ErrorAction SilentlyContinue) {')
+	                ($indent + '  try { Remove-Job -Name $job.Name -Force -ErrorAction SilentlyContinue } catch {}')
+	                ($indent + '}')
+	                ($indent + 'if (Get-Job -Id $job.Id -ErrorAction SilentlyContinue) {')
+	                ($indent + '  # Last resort: clear all jobs so the queue can move on.')
+	                ($indent + '  try { Remove-Job * -Force -ErrorAction SilentlyContinue } catch {}')
+	                ($indent + '}')
+	                ($indent + 'continue')
 	            ) -join "`n"
 	        },
 	        [System.Text.RegularExpressions.RegexOptions]::None
@@ -64,7 +65,10 @@ function Enable-AUHotfixBlockedJob {
         Set-Item -Path Function:\Update-AUPackages -Value ([ScriptBlock]::Create($newBody))
     } $patched
 
-    $ok = & $module { (Get-Command Update-AUPackages -ErrorAction Stop).ScriptBlock.ToString() -match 'AU_HOTFIX_BLOCKED_JOB' }
+    $ok = & $module {
+        $t = (Get-Command Update-AUPackages -ErrorAction Stop).ScriptBlock.ToString()
+        ($t -match 'AU_HOTFIX_BLOCKED_JOB') -and ($t -match 'Stop-Job\\s+\\$job')
+    }
     if (-not $ok) {
         # Fallback for CI: patch the installed module file on disk, then re-import.
         if ($Env:GITHUB_ACTIONS -ne 'true') {
@@ -84,35 +88,35 @@ function Enable-AUHotfixBlockedJob {
 
         try {
             $src = Get-Content -LiteralPath $file -Raw -ErrorAction Stop
-            if ($src -notmatch 'AU_HOTFIX_BLOCKED_JOB') {
+            if (($src -notmatch 'AU_HOTFIX_BLOCKED_JOB') -or ($src -match 'Stop-Job\\s+`\\$job')) {
                 $src2 = [regex]::Replace(
                     $src,
                     $pattern,
                     {
                         param($m)
-                        $indent = $m.Groups[1].Value
-                        $line = $m.Groups[2].Value
-                        @(
-                            $line
-                            "${indent}# AU_HOTFIX_BLOCKED_JOB: remove invalid-state jobs (e.g. Blocked) so updateall can continue"
-                            "${indent}try { Stop-Job `$job -Force -ErrorAction SilentlyContinue } catch {}"
-                            "${indent}try { Wait-Job `$job -Timeout 5 -ErrorAction SilentlyContinue | Out-Null } catch {}"
-                            "${indent}if ( 'Stopped', 'Failed', 'Completed' -contains `$job.State ) {"
-                            "${indent}  `$p -= 1"
-                            "${indent}  continue"
-                            "${indent}}"
-                            "${indent}try { Remove-Job -Id `$job.Id -Force -ErrorAction SilentlyContinue } catch {}"
-                            "${indent}if (Get-Job -Id `$job.Id -ErrorAction SilentlyContinue) {"
-                            "${indent}  try { Remove-Job -Name `$job.Name -Force -ErrorAction SilentlyContinue } catch {}"
-                            "${indent}}"
-                            "${indent}if (Get-Job -Id `$job.Id -ErrorAction SilentlyContinue) {"
-                            "${indent}  try { Remove-Job * -Force -ErrorAction SilentlyContinue } catch {}"
-                            "${indent}}"
-                            "${indent}continue"
-                        ) -join "`n"
-                    },
-                    [System.Text.RegularExpressions.RegexOptions]::None
-                )
+	                        $indent = $m.Groups[1].Value
+	                        $line = $m.Groups[2].Value
+	                        @(
+	                            $line
+	                            ($indent + '# AU_HOTFIX_BLOCKED_JOB: remove invalid-state jobs (e.g. Blocked) so updateall can continue')
+	                            ($indent + 'try { Stop-Job $job -Force -ErrorAction SilentlyContinue } catch {}')
+	                            ($indent + 'try { Wait-Job $job -Timeout 5 -ErrorAction SilentlyContinue | Out-Null } catch {}')
+	                            ($indent + 'if ( ''Stopped'', ''Failed'', ''Completed'' -contains $job.State ) {')
+	                            ($indent + '  $p -= 1')
+	                            ($indent + '  continue')
+	                            ($indent + '}')
+	                            ($indent + 'try { Remove-Job -Id $job.Id -Force -ErrorAction SilentlyContinue } catch {}')
+	                            ($indent + 'if (Get-Job -Id $job.Id -ErrorAction SilentlyContinue) {')
+	                            ($indent + '  try { Remove-Job -Name $job.Name -Force -ErrorAction SilentlyContinue } catch {}')
+	                            ($indent + '}')
+	                            ($indent + 'if (Get-Job -Id $job.Id -ErrorAction SilentlyContinue) {')
+	                            ($indent + '  try { Remove-Job * -Force -ErrorAction SilentlyContinue } catch {}')
+	                            ($indent + '}')
+	                            ($indent + 'continue')
+	                        ) -join "`n"
+	                    },
+	                    [System.Text.RegularExpressions.RegexOptions]::None
+	                )
 
                 if ($src2 -eq $src) {
                     Write-Warning "Enable-AUHotfixBlockedJob: CI fallback patch pattern not found in $file"
@@ -124,7 +128,10 @@ function Enable-AUHotfixBlockedJob {
             Remove-Module $module.Name -Force -ErrorAction SilentlyContinue
             Import-Module $module.Path -Force -ErrorAction Stop
 
-            $ok = & (Get-Module $module.Name -ErrorAction Stop) { (Get-Command Update-AUPackages -ErrorAction Stop).ScriptBlock.ToString() -match 'AU_HOTFIX_BLOCKED_JOB' }
+            $ok = & (Get-Module $module.Name -ErrorAction Stop) {
+                $t = (Get-Command Update-AUPackages -ErrorAction Stop).ScriptBlock.ToString()
+                ($t -match 'AU_HOTFIX_BLOCKED_JOB') -and ($t -match 'Stop-Job\\s+\\$job')
+            }
         } catch {
             Write-Warning ("Enable-AUHotfixBlockedJob: CI fallback patch failed: " + $_.Exception.Message)
             return $false
