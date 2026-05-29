@@ -14,7 +14,7 @@ jobs:
       remote_ver: ${{ steps.compare.outputs.remote_ver }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           token: ${{ secrets.GIT_PAT }}
 
