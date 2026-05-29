@@ -11,7 +11,7 @@ function global:au_SearchReplace {
             "(?i)(^\s*[$]checksumType\s*=\s*)('.*')"= "`$1'$($Latest.ChecksumType32)'"
         }
         ".\tools\chocolateyUninstall.ps1" = @{
-            'JSONedit_\d+_\d+_\d+\.zip' = "$($Latest.Binary)"
+            'JSONedit_\d+_\d+_\d+(?:_\d+)*\.zip' = "$($Latest.Binary)"
         }
     }
 }
@@ -19,10 +19,10 @@ function global:au_SearchReplace {
 function global:au_GetLatest {
     $download_page = Invoke-WebRequest -Uri $releases -UseBasicParsing
 
-    $re  = 'JSONedit_[0-9]+_[0-9]+_[0-9]+\.zip'
+    $re  = 'JSONedit_(?:[0-9]+_){2,}[0-9]+\.zip'
     $url = $download_page.links | ? href -match $re | select -Last 1 -expand href
     $binary = Split-Path $url -Leaf
-    $version = ($url -split '_|\.')[1..3] -join '.'
+    $version = ([System.IO.Path]::GetFileNameWithoutExtension($binary) -replace '^JSONedit_', '') -replace '_', '.'
     @{
        URL32   = "$domain/$url"
        Version = $version
