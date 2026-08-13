@@ -27,7 +27,25 @@ jobs:
      
       - name: install
         run: |
-          choco install chocolatey-au
+          $maxAttempts = 3
+
+          for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
+            Write-Host "Installing chocolatey-au (attempt $attempt of $maxAttempts)"
+            choco install chocolatey-au --yes --no-progress
+
+            powershell -NoProfile -Command "Import-Module Chocolatey-AU -ErrorAction Stop"
+            if ($LASTEXITCODE -eq 0) {
+              Write-Host "Chocolatey-AU is installed and importable by Windows PowerShell"
+              exit 0
+            }
+
+            if ($attempt -lt $maxAttempts) {
+              Write-Warning "Chocolatey-AU is unavailable; retrying in 5 seconds"
+              Start-Sleep -Seconds 5
+            }
+          }
+
+          throw "Chocolatey-AU could not be installed after $maxAttempts attempts"
       
       - name: build_script
         shell: powershell # Instead of pwsh because au fails on pwsh core.
