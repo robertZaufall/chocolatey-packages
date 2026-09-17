@@ -5,7 +5,7 @@ $packageArgs = @{
 	url            = 'https://download.microsoft.com/download/D/A/1/DA1FDDB8-6DA8-4F50-B4D0-18019591E182/GatewayInstall.exe'
 	fileType       = 'exe'
 	silentArgs     = '/install /quiet /norestart /log OnPremDataGateway-Install.log'
-    checksum       = '19b0c93a5a22a7cdb41902be157b48659405e3c2dcbff408cb4e0de767d4f98c'
+    checksum       = '1ebe643168f932098f5f6a206b70aa4682c8b167827ef341d3d2179d3559ff20'
     checksumType   = 'sha256'
 	validExitCodes = @(0, 3010, 1641)
 }
